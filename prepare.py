@@ -76,10 +76,14 @@ def prepare_telco(df):
     df.churn = df.churn.replace("No", 0)
     
     # Dropping cotract_type and renaming contract_type_id to cotract_type. 1 = Month-to-Month, 2 = 1 yr, 3 = 2 yr
-    df = df.drop("contract_type", axis=1)
+    #df = df.drop("contract_type", axis=1)
+    #df = df.rename(columns={'contract_type_id':'contract_type'})
+    #df = df.loc[:,~df.columns.duplicated()]
+    service_dum = pd.get_dummies(df.contract_type)
+    df = pd.concat([df, service_dum], axis = 1)
+    df.rename(columns = {'Month-to-month': 'month_to_month', 'One year': 'one_year', 'Two year': 'two_year'})
     df = df.rename(columns={'contract_type_id':'contract_type'})
-    df = df.loc[:,~df.columns.duplicated()]
-    df['contract_type'] = df.contract_type.astype(float)
+    #df['contract_type'] = df.contract_type.astype(float)
    
     # Dropping internet_service_type and renaming internet_service_type_id to internet_service_type. 
     # 1 = DSL, 2 = Fiber Optic yr, 3 = None
@@ -92,6 +96,9 @@ def prepare_telco(df):
 
     # Creating tenure in years
     df['tenure_years'] = round(df.tenure / 12, 2)
+
+    # Removing duplicated columns
+    df = df.loc[:,~df.columns.duplicated()]
     
      # splitting the data into train, test and validate
     train_validate, test = train_test_split(df, test_size = .20, random_state = 123)
@@ -175,7 +182,8 @@ def prepare_telco_all(df):
     service_dum = pd.get_dummies(df.contract_type)
     df = pd.concat([df, service_dum], axis = 1)
     df.rename(columns = {'Month-to-month': 'month_to_month', 'One year': 'one_year', 'Two year': 'two_year'})
-    df['contract_type'] = df.contract_type.astype(float)
+    df = df.rename(columns={'contract_type_id':'contract_type'})
+    #df['contract_type'] = df.contract_type.astype(float)
 
     # Dropping internet_service_type and renaming internet_service_type_id to internet_service_type. 
     # 1 = DSL, 2 = Fiber Optic yr, 3 = None
@@ -188,6 +196,9 @@ def prepare_telco_all(df):
 
     # Creating tenure in years
     df['tenure_years'] = round(df.tenure / 12, 2)
+
+    # Removing duplicated columns
+    df = df.loc[:,~df.columns.duplicated()]
     
     # splitting the data into train, test and validate
     #train_validate, test = train_test_split(df, test_size = .20, random_state = 123)
